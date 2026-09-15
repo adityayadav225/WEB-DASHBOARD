@@ -1,0 +1,1728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sales Analytics Dashboard</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<style>
+/* ============================================================
+   Sales Analytics Dashboard — Stylesheet
+   Design language: deep navy + muted gold accent, cool-grey
+   surfaces, Manrope for display/KPI numerals, Inter for UI text
+   and tabular data.
+   ============================================================ */
+
+:root {
+  /* --- Color tokens (light) --- */
+  --bg: #F5F7FA;
+  --surface: #FFFFFF;
+  --surface-alt: #F0F3F8;
+  --border: #E3E8EF;
+  --text: #101E33;
+  --text-muted: #5B6B84;
+  --text-faint: #8896AB;
+
+  --navy: #0F2A47;
+  --navy-soft: #16385C;
+  --gold: #B98B2E;
+  --gold-soft: #F4E6C8;
+  --positive: #1E9E64;
+  --positive-bg: #E4F6ED;
+  --negative: #D6483F;
+  --negative-bg: #FBEAE8;
+  --info: #2B6CB0;
+
+  --chart-1: #16385C;
+  --chart-2: #B98B2E;
+  --chart-3: #2B8C7E;
+  --chart-4: #C0714B;
+  --chart-5: #6E5AA3;
+  --chart-6: #3E8FC1;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-card: 0 1px 2px rgba(16, 30, 51, 0.04), 0 1px 12px rgba(16, 30, 51, 0.04);
+
+  --font-display: 'Manrope', 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  --sidebar-w: 240px;
+  --sidebar-w-collapsed: 72px;
+
+  color-scheme: light;
+}
+
+html.dark {
+  --bg: #0A1526;
+  --surface: #101F35;
+  --surface-alt: #16283F;
+  --border: #22334D;
+  --text: #E9EEF6;
+  --text-muted: #9FB0C7;
+  --text-faint: #6E809C;
+
+  --navy: #16385C;
+  --navy-soft: #1E4874;
+  --gold: #D8AC4E;
+  --gold-soft: #2B2412;
+  --positive: #3FC787;
+  --positive-bg: #123326;
+  --negative: #E8746A;
+  --negative-bg: #35181A;
+  --info: #5B9CDE;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.2), 0 4px 18px rgba(0, 0, 0, 0.25);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+h1, h2, h3 { font-family: var(--font-display); margin: 0; color: var(--text); }
+a { color: inherit; text-decoration: none; }
+button, select, input { font-family: inherit; }
+::selection { background: var(--gold-soft); }
+
+/* ---------------- App shell ---------------- */
+.app { display: flex; min-height: 100vh; }
+
+/* ---------------- Sidebar ---------------- */
+.sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: var(--navy);
+  color: #DDE7F3;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  transition: width 0.2s ease;
+  z-index: 40;
+}
+.app.is-sidebar-collapsed .sidebar { width: var(--sidebar-w-collapsed); }
+
+.sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.sidebar__mark {
+  width: 34px; height: 34px; flex-shrink: 0;
+  background: var(--gold);
+  color: var(--navy);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+}
+.sidebar__brand-text { font-family: var(--font-display); font-weight: 800; font-size: 16px; color: #fff; }
+.sidebar__brand-text span { font-weight: 500; color: var(--gold); display: block; font-size: 10.5px; letter-spacing: 0.04em; margin-top: -2px; }
+.app.is-sidebar-collapsed .sidebar__brand-text { display: none; }
+
+.sidebar__nav { flex: 1; padding: 14px 12px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
+.nav-link {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  color: #B9C7DC;
+  font-size: 13.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.nav-link i { width: 18px; text-align: center; font-size: 14px; flex-shrink: 0; }
+.nav-link:hover { background: rgba(255,255,255,0.06); color: #fff; }
+.nav-link.is-active { background: var(--gold); color: var(--navy); font-weight: 700; }
+.app.is-sidebar-collapsed .nav-link span { display: none; }
+
+.sidebar__footer { padding: 14px; border-top: 1px solid rgba(255,255,255,0.08); }
+.sidebar__footer .icon-btn { color: #B9C7DC; width: 100%; }
+.app.is-sidebar-collapsed .sidebar__footer .icon-btn i { transform: rotate(180deg); }
+
+/* ---------------- Main ---------------- */
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+  padding: 16px 28px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.topbar__left { display: flex; align-items: center; gap: 14px; }
+.topbar__menu-btn { display: none; }
+.topbar__title { font-size: 19px; font-weight: 800; }
+.topbar__subtitle { margin: 2px 0 0; font-size: 12.5px; color: var(--text-muted); }
+.topbar__right { display: flex; align-items: center; gap: 10px; }
+.topbar__date { font-size: 12.5px; color: var(--text-muted); margin-right: 6px; white-space: nowrap; }
+
+.icon-btn {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.icon-btn:hover { background: var(--surface-alt); color: var(--text); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 15px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  font-size: 13px; font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+.btn:active { transform: translateY(1px); }
+.btn--ghost { background: var(--surface); color: var(--text); }
+.btn--ghost:hover { background: var(--surface-alt); }
+.btn--primary { background: var(--navy); border-color: var(--navy); color: #fff; }
+.btn--primary:hover { background: var(--navy-soft); }
+.link-btn { background: none; border: none; color: var(--text-muted); font-size: 12.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.link-btn:hover { color: var(--text); }
+
+.content { padding: 22px 28px 48px; display: flex; flex-direction: column; gap: 20px; max-width: 1600px; width: 100%; margin: 0 auto; }
+
+/* ---------------- Panels ---------------- */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 20px 22px;
+}
+.panel__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.panel__head h2 { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 9px; }
+.panel__head h2 i { color: var(--gold); font-size: 13px; }
+.panel__hint { font-size: 12px; color: var(--text-faint); margin: 0; }
+
+.panel-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; }
+.panel-grid .panel { grid-column: span 12; }
+.span-3 { grid-column: span 3 !important; }
+.span-4 { grid-column: span 4 !important; }
+.span-6 { grid-column: span 6 !important; }
+.span-8 { grid-column: span 8 !important; }
+
+/* ---------------- Filters ---------------- */
+.filters__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.filters__head h2 { font-size: 14px; display: flex; gap: 8px; align-items: center; }
+.filters__head h2 i { color: var(--gold); }
+.filters__body {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px 14px;
+  margin-top: 14px;
+}
+.filters.is-collapsed .filters__body { display: none; }
+.filter-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.filter-field label { font-size: 11px; font-weight: 600; color: var(--text-faint); text-transform: none; }
+.filter-field select {
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  color: var(--text);
+  font-size: 12.5px;
+  min-width: 0;
+}
+.filter-actions { flex-direction: row; align-items: flex-end; gap: 8px; grid-column: span 2; }
+
+/* ---------------- KPI cards ---------------- */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-card);
+  display: flex; flex-direction: column; gap: 10px;
+  position: relative;
+  overflow: hidden;
+}
+.kpi-card::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--kpi-accent, var(--gold));
+}
+.kpi-card__top { display: flex; align-items: center; justify-content: space-between; }
+.kpi-card__icon {
+  width: 34px; height: 34px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface-alt); color: var(--kpi-accent, var(--navy));
+  font-size: 14px;
+}
+.kpi-card__label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+.kpi-card__value { font-family: var(--font-display); font-size: 23px; font-weight: 800; letter-spacing: -0.01em; }
+.kpi-card__change { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; }
+.kpi-card__change.positive { color: var(--positive); }
+.kpi-card__change.negative { color: var(--negative); }
+.kpi-card__sub { font-size: 11.5px; color: var(--text-faint); font-weight: 500; }
+
+/* ---------------- Charts ---------------- */
+.chart-panel { display: flex; flex-direction: column; }
+.chart-wrap { position: relative; height: 300px; }
+.chart-wrap--tall { height: 340px; }
+.chart-wrap--doughnut { height: 300px; display: flex; align-items: center; justify-content: center; }
+
+.segmented { display: flex; background: var(--surface-alt); border-radius: var(--radius-sm); padding: 3px; gap: 2px; }
+.segmented button {
+  border: none; background: transparent; padding: 6px 11px; border-radius: 5px;
+  font-size: 11.5px; font-weight: 600; color: var(--text-muted); cursor: pointer;
+}
+.segmented button.is-active { background: var(--navy); color: #fff; }
+
+/* ---------------- Regional performance ---------------- */
+.region-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.region-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  cursor: pointer;
+  background: var(--surface-alt);
+  transition: border-color 0.15s ease, transform 0.05s ease;
+}
+.region-card:hover { border-color: var(--gold); }
+.region-card.is-active { border-color: var(--navy); background: var(--gold-soft); }
+.region-card__name { font-weight: 700; font-size: 13.5px; margin-bottom: 6px; }
+.region-card__sales { font-family: var(--font-display); font-weight: 800; font-size: 17px; }
+.region-card__meta { font-size: 11.5px; color: var(--text-muted); margin-top: 4px; }
+.region-detail { margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border); display: none; }
+.region-detail.is-visible { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 14px; }
+.region-detail .stat-label { font-size: 11.5px; color: var(--text-faint); font-weight: 600; }
+.region-detail .stat-value { font-family: var(--font-display); font-size: 18px; font-weight: 800; margin-top: 3px; }
+
+/* ---------------- Rank lists ---------------- */
+.rank-list { display: flex; flex-direction: column; gap: 4px; }
+.rank-item { display: flex; align-items: center; gap: 12px; padding: 9px 4px; border-bottom: 1px solid var(--border); }
+.rank-item:last-child { border-bottom: none; }
+.rank-item__pos {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--surface-alt); color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+}
+.rank-item__body { flex: 1; min-width: 0; }
+.rank-item__name { font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rank-item__meta { font-size: 11px; color: var(--text-faint); }
+.rank-item__value { text-align: right; }
+.rank-item__sales { font-weight: 700; font-size: 12.5px; }
+.rank-item__growth { font-size: 11px; font-weight: 700; }
+.rank-item__growth.positive { color: var(--positive); }
+.rank-item__growth.negative { color: var(--negative); }
+
+/* ---------------- Insights ---------------- */
+.insights-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.insight-card { display: flex; gap: 12px; padding: 14px; border-radius: var(--radius-md); background: var(--surface-alt); border: 1px solid var(--border); }
+.insight-card__icon { width: 32px; height: 32px; border-radius: 8px; background: var(--gold-soft); color: var(--gold); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px; }
+.insight-card p { margin: 0; font-size: 12.5px; line-height: 1.55; color: var(--text); }
+.insight-card strong { color: var(--navy); }
+html.dark .insight-card strong { color: var(--gold); }
+
+/* ---------------- Table ---------------- */
+.table-head { align-items: flex-start; }
+.table-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.search-box { display: flex; align-items: center; gap: 8px; background: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; min-width: 220px; }
+.search-box i { color: var(--text-faint); font-size: 12px; }
+.search-box input { border: none; background: none; outline: none; color: var(--text); font-size: 12.5px; width: 100%; }
+
+.table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-md); }
+.data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 900px; }
+.data-table th {
+  text-align: left; padding: 11px 14px; background: var(--surface-alt);
+  font-weight: 700; color: var(--text-muted); font-size: 11.5px;
+  white-space: nowrap; cursor: pointer; user-select: none;
+  border-bottom: 1px solid var(--border);
+}
+.data-table th i { margin-left: 5px; font-size: 9px; color: var(--text-faint); }
+.data-table th.is-sorted i { color: var(--gold); }
+.data-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.data-table tbody tr:hover { background: var(--surface-alt); }
+.data-table tbody tr:last-child td { border-bottom: none; }
+.cell-profit.is-high { color: var(--positive); font-weight: 700; }
+.cell-profit.is-low { color: var(--negative); font-weight: 700; }
+.pill { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 10.5px; font-weight: 700; background: var(--surface-alt); color: var(--text-muted); }
+
+.table-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; flex-wrap: wrap; gap: 10px; }
+.table-footer span { font-size: 12px; color: var(--text-muted); }
+.pagination { display: flex; gap: 6px; }
+.pagination button {
+  min-width: 30px; height: 30px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--surface); color: var(--text-muted); font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.pagination button.is-active { background: var(--navy); border-color: var(--navy); color: #fff; }
+.pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.page-footer { text-align: center; padding: 10px 0 6px; color: var(--text-faint); font-size: 11.5px; }
+
+/* ---------------- Responsive ---------------- */
+@media (max-width: 1180px) {
+  .span-8, .span-6, .span-4 { grid-column: span 12 !important; }
+  .span-3 { grid-column: span 6 !important; }
+}
+
+@media (max-width: 900px) {
+  .sidebar { position: fixed; left: -260px; top: 0; height: 100vh; box-shadow: 0 0 30px rgba(0,0,0,0.25); }
+  .app.is-mobile-open .sidebar { left: 0; }
+  .topbar__menu-btn { display: flex; }
+  .content { padding: 16px; }
+  .topbar { padding: 14px 16px; }
+  .span-3 { grid-column: span 12 !important; }
+  .filter-actions { grid-column: span 2; }
+}
+
+@media (max-width: 560px) {
+  .topbar__date { display: none; }
+  .btn-label { display: none; }
+  .btn { padding: 9px 11px; }
+  .kpi-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+  .table-controls { width: 100%; }
+  .search-box { min-width: 0; flex: 1; }
+}
+
+@media print {
+  .sidebar, .topbar, .filters, .table-controls, .segmented, .pagination, #themeToggle { display: none !important; }
+  .app, .main, .content { display: block; }
+  .panel { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__brand">
+      <span class="sidebar__mark"><i class="fa-solid fa-chart-simple"></i></span>
+      <span class="sidebar__brand-text">Saarthi<span>Analytics</span></span>
+    </div>
+
+    <nav class="sidebar__nav">
+      <a href="#dashboard" class="nav-link is-active" data-section="dashboard">
+        <i class="fa-solid fa-grip"></i><span>Dashboard</span>
+      </a>
+      <a href="#overview" class="nav-link" data-section="overview">
+        <i class="fa-solid fa-chart-line"></i><span>Sales Overview</span>
+      </a>
+      <a href="#products" class="nav-link" data-section="products">
+        <i class="fa-solid fa-box"></i><span>Products</span>
+      </a>
+      <a href="#customers" class="nav-link" data-section="customers">
+        <i class="fa-solid fa-users"></i><span>Customers</span>
+      </a>
+      <a href="#regions" class="nav-link" data-section="regions">
+        <i class="fa-solid fa-map-location-dot"></i><span>Regions</span>
+      </a>
+      <a href="#reports" class="nav-link" data-section="reports">
+        <i class="fa-solid fa-table-list"></i><span>Reports</span>
+      </a>
+      <a href="#settings" class="nav-link" data-section="settings">
+        <i class="fa-solid fa-gear"></i><span>Settings</span>
+      </a>
+    </nav>
+
+    <div class="sidebar__footer">
+      <button id="sidebarCollapseBtn" class="icon-btn" title="Collapse sidebar">
+        <i class="fa-solid fa-angles-left"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+
+    <!-- Header -->
+    <header class="topbar">
+      <div class="topbar__left">
+        <button id="sidebarToggleMobile" class="icon-btn topbar__menu-btn" title="Menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div>
+          <h1 class="topbar__title">Sales Analytics Dashboard</h1>
+          <p class="topbar__subtitle">Interactive Sales Performance Overview</p>
+        </div>
+      </div>
+      <div class="topbar__right">
+        <span class="topbar__date" id="currentDate"></span>
+        <button id="refreshBtn" class="btn btn--ghost" title="Simulate new data refresh">
+          <i class="fa-solid fa-rotate"></i><span class="btn-label">Refresh Data</span>
+        </button>
+        <button id="themeToggle" class="icon-btn" title="Toggle dark / light mode">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- Filters -->
+      <section class="panel filters" id="filters">
+        <div class="filters__head">
+          <h2><i class="fa-solid fa-sliders"></i> Filters</h2>
+          <button id="filtersCollapseBtn" class="link-btn"><span>Hide</span> <i class="fa-solid fa-chevron-up"></i></button>
+        </div>
+        <div class="filters__body" id="filtersBody">
+          <div class="filter-field">
+            <label for="f-daterange">Date Range</label>
+            <select id="f-daterange">
+              <option value="all">All time</option>
+              <option value="last90">Last 90 days</option>
+              <option value="last180">Last 180 days</option>
+              <option value="last365">Last 12 months</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label for="f-year">Year</label>
+            <select id="f-year"><option value="all">All years</option></select>
+          </div>
+          <div class="filter-field">
+            <label for="f-month">Month</label>
+            <select id="f-month"><option value="all">All months</option></select>
+          </div>
+          <div class="filter-field">
+            <label for="f-region">Region</label>
+            <select id="f-region"><option value="all">All regions</option></select>
+          </div>
+          <div class="filter-field">
+            <label for="f-state">State</label>
+            <select id="f-state"><option value="all">All states</option></select>
+          </div>
+          <div class="filter-field">
+            <label for="f-city">City</label>
+            <select id="f-city"><option value="all">All cities</option></select>
+          </div>
+          <div class="filter-field">
+            <label for="f-category">Category</label>
+            <select id="f-category"><option value="all">All categories</option></select>
+          </div>
+          <div class="filter-field">
+            <label for="f-product">Product</label>
+            <select id="f-product"><option value="all">All products</option></select>
+          </div>
+          <div class="filter-field">
+            <label for="f-segment">Customer Segment</label>
+            <select id="f-segment"><option value="all">All segments</option></select>
+          </div>
+          <div class="filter-field">
+            <label for="f-channel">Sales Channel</label>
+            <select id="f-channel"><option value="all">All channels</option></select>
+          </div>
+          <div class="filter-field filter-actions">
+            <button id="applyFiltersBtn" class="btn btn--primary"><i class="fa-solid fa-check"></i> Apply Filters</button>
+            <button id="resetFiltersBtn" class="btn btn--ghost"><i class="fa-solid fa-arrow-rotate-left"></i> Reset</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- KPI cards -->
+      <section class="kpi-grid" id="kpiGrid" aria-label="Key performance indicators"></section>
+
+      <!-- Main charts -->
+      <section class="panel-grid" id="dashboard">
+        <div class="panel chart-panel span-8">
+          <div class="panel__head">
+            <h2>Sales &amp; Profit Trend</h2>
+            <div class="segmented" id="trendGranularity">
+              <button data-granularity="daily">Daily</button>
+              <button data-granularity="monthly" class="is-active">Monthly</button>
+              <button data-granularity="quarterly">Quarterly</button>
+              <button data-granularity="yearly">Yearly</button>
+            </div>
+          </div>
+          <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+        </div>
+
+        <div class="panel chart-panel span-4">
+          <div class="panel__head"><h2>Customer Segment</h2></div>
+          <div class="chart-wrap chart-wrap--doughnut"><canvas id="segmentChart"></canvas></div>
+        </div>
+
+        <div class="panel chart-panel span-6">
+          <div class="panel__head"><h2>Sales vs Profit</h2></div>
+          <div class="chart-wrap"><canvas id="salesProfitChart"></canvas></div>
+        </div>
+
+        <div class="panel chart-panel span-6">
+          <div class="panel__head"><h2>Category Performance</h2></div>
+          <div class="chart-wrap"><canvas id="categoryChart"></canvas></div>
+        </div>
+
+        <div class="panel chart-panel span-6" id="regions">
+          <div class="panel__head"><h2>Regional Sales</h2>
+            <div class="segmented" id="regionGranularity">
+              <button data-level="region" class="is-active">By Region</button>
+              <button data-level="state">By State</button>
+            </div>
+          </div>
+          <div class="chart-wrap"><canvas id="regionChart"></canvas></div>
+        </div>
+
+        <div class="panel chart-panel span-6" id="products">
+          <div class="panel__head"><h2>Top 10 Products by Sales</h2></div>
+          <div class="chart-wrap chart-wrap--tall"><canvas id="topProductsChart"></canvas></div>
+        </div>
+      </section>
+
+      <!-- Regional performance -->
+      <section class="panel">
+        <div class="panel__head"><h2><i class="fa-solid fa-map-location-dot"></i> Regional Performance</h2>
+          <p class="panel__hint">Click a region to see its sales, profit and orders</p>
+        </div>
+        <div class="region-grid" id="regionGrid"></div>
+        <div class="region-detail" id="regionDetail"></div>
+      </section>
+
+      <!-- Top performers -->
+      <section class="panel-grid">
+        <div class="panel span-3" id="topProductsList"><div class="panel__head"><h2>Top 5 Products</h2></div><div class="rank-list" id="topProductsRankList"></div></div>
+        <div class="panel span-3" id="customers"><div class="panel__head"><h2>Top 5 Customers</h2></div><div class="rank-list" id="topCustomersRankList"></div></div>
+        <div class="panel span-3"><div class="panel__head"><h2>Top 5 Regions</h2></div><div class="rank-list" id="topRegionsRankList"></div></div>
+        <div class="panel span-3"><div class="panel__head"><h2>Top Salesperson</h2></div><div class="rank-list" id="topSalespersonRankList"></div></div>
+      </section>
+
+      <!-- Insights -->
+      <section class="panel" id="overview">
+        <div class="panel__head"><h2><i class="fa-solid fa-lightbulb"></i> Key Insights</h2></div>
+        <div class="insights-grid" id="insightsGrid"></div>
+      </section>
+
+      <!-- Table -->
+      <section class="panel" id="reports">
+        <div class="panel__head table-head">
+          <h2><i class="fa-solid fa-table-list"></i> Sales Performance</h2>
+          <div class="table-controls">
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="tableSearch" placeholder="Search orders, customers, products…" />
+            </div>
+            <button id="exportCsvBtn" class="btn btn--ghost"><i class="fa-solid fa-download"></i> Export CSV</button>
+            <button id="printBtn" class="btn btn--ghost"><i class="fa-solid fa-print"></i> Print</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table" id="dataTable">
+            <thead>
+              <tr>
+                <th data-key="orderId">Order ID <i class="fa-solid fa-sort"></i></th>
+                <th data-key="orderDate">Date <i class="fa-solid fa-sort"></i></th>
+                <th data-key="customerName">Customer <i class="fa-solid fa-sort"></i></th>
+                <th data-key="productName">Product <i class="fa-solid fa-sort"></i></th>
+                <th data-key="category">Category <i class="fa-solid fa-sort"></i></th>
+                <th data-key="region">Region <i class="fa-solid fa-sort"></i></th>
+                <th data-key="state">State <i class="fa-solid fa-sort"></i></th>
+                <th data-key="sales">Sales <i class="fa-solid fa-sort"></i></th>
+                <th data-key="quantity">Qty <i class="fa-solid fa-sort"></i></th>
+                <th data-key="profit">Profit <i class="fa-solid fa-sort"></i></th>
+                <th data-key="profitMargin">Margin <i class="fa-solid fa-sort"></i></th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <span id="tableSummary"></span>
+          <div class="pagination" id="pagination"></div>
+        </div>
+      </section>
+
+      <footer class="page-footer" id="settings">
+        <p>Sales Analytics Dashboard — sample data is generated locally for demonstration. See chat for instructions on connecting your own dataset.</p>
+      </footer>
+
+    </main>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js" integrity="sha512-6HrPqAvK+lZElYSAiiKt/rE4E36yZbGb7cUsczYcxTIvo9zjLUgae+jvxsVeVXPJ8Y5hzfxjhtISLYVo10ao4A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+/* ============================================================
+   data.js — Sample dataset + generator for the Sales Analytics
+   Dashboard. Produces realistic (synthetic) Indian retail /
+   B2B sales transactions. Replace generateSalesData() with a
+   fetch/parse of your own CSV to use real data — see README
+   notes in the chat response for guidance.
+   ============================================================ */
+
+/* ---------- Reference dimensions ---------- */
+
+const REGIONS = {
+  North: {
+    states: {
+      "Delhi": ["New Delhi", "Dwarka", "Rohini"],
+      "Punjab": ["Ludhiana", "Amritsar", "Jalandhar"],
+      "Haryana": ["Gurugram", "Faridabad", "Panipat"],
+      "Uttar Pradesh": ["Lucknow", "Noida", "Kanpur"]
+    }
+  },
+  South: {
+    states: {
+      "Karnataka": ["Bengaluru", "Mysuru", "Mangaluru"],
+      "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai"],
+      "Telangana": ["Hyderabad", "Warangal"],
+      "Kerala": ["Kochi", "Thiruvananthapuram"]
+    }
+  },
+  West: {
+    states: {
+      "Maharashtra": ["Mumbai", "Pune", "Nagpur"],
+      "Gujarat": ["Ahmedabad", "Surat", "Vadodara"],
+      "Rajasthan": ["Jaipur", "Udaipur", "Jodhpur"]
+    }
+  },
+  East: {
+    states: {
+      "West Bengal": ["Kolkata", "Howrah", "Siliguri"],
+      "Odisha": ["Bhubaneswar", "Cuttack"],
+      "Bihar": ["Patna", "Gaya"]
+    }
+  }
+};
+
+const CATEGORIES = {
+  "Technology": {
+    subs: {
+      "Laptops": ["Lenovo ThinkPad E14", "HP Pavilion 15", "Dell Inspiron 14", "Asus VivoBook 15", "Acer Aspire 7"],
+      "Mobile Accessories": ["Boat Rockerz 450", "Mi Power Bank 20000", "JBL Tune 510BT", "Realme Buds Wireless", "Anker Charging Cable"],
+      "Office Electronics": ["Canon PIXMA Printer", "HP LaserJet M126", "Epson L3250 Scanner", "Logitech MK270 Combo"]
+    }
+  },
+  "Furniture": {
+    subs: {
+      "Chairs": ["Featherlite Ergonomic Chair", "Nilkamal Executive Chair", "Godrej Interio Chair", "Green Soul Mid-Back Chair"],
+      "Tables": ["Godrej Study Table", "Nilkamal Office Desk", "Urban Ladder Coffee Table", "Durian Conference Table"],
+      "Storage": ["Godrej Almirah", "Nilkamal Storage Cabinet", "Featherlite Filing Cabinet"]
+    }
+  },
+  "Office Supplies": {
+    subs: {
+      "Stationery": ["Classmate Notebook Pack", "Camlin Stationery Kit", "Parker Pen Set", "Natraj Pencil Box"],
+      "Paper": ["JK Copier A4 Ream", "Century Bond Paper", "ITC Sunshine Paper"],
+      "Binders & Files": ["Solo Ring Binder", "Kangaro File Organizer", "Premier File Folder Set"]
+    }
+  },
+  "Apparel": {
+    subs: {
+      "Menswear": ["Allen Solly Formal Shirt", "Van Heusen Trousers", "Raymond Blazer"],
+      "Womenswear": ["Biba Kurta Set", "W for Woman Dress", "Fabindia Saree"],
+      "Footwear": ["Bata Formal Shoes", "Liberty Sports Shoes", "Woodland Boots"]
+    }
+  },
+  "Home Appliances": {
+    subs: {
+      "Kitchen": ["Prestige Mixer Grinder", "Bajaj Induction Cooktop", "Philips Air Fryer"],
+      "Cooling": ["Havells Table Fan", "Voltas Window AC", "Symphony Air Cooler"],
+      "Cleaning": ["Eureka Forbes Vacuum Cleaner", "Milton Steam Iron"]
+    }
+  }
+};
+
+const SEGMENTS = ["Consumer", "Corporate", "Home Office"];
+const CHANNELS = ["Online", "Retail Store", "Distributor", "Direct Sales"];
+
+const FIRST_NAMES = ["Aarav", "Vivaan", "Aditya", "Ishaan", "Krishna", "Sai", "Arjun", "Rohan", "Aisha", "Ananya",
+  "Diya", "Priya", "Kavya", "Meera", "Saanvi", "Riya", "Neha", "Pooja", "Rahul", "Amit",
+  "Vikram", "Suresh", "Manoj", "Deepak", "Anjali", "Sneha", "Kiran", "Ravi", "Sanjay", "Nikhil"];
+const LAST_NAMES = ["Sharma", "Verma", "Gupta", "Patel", "Iyer", "Reddy", "Nair", "Singh", "Mehta", "Joshi",
+  "Chopra", "Malhotra", "Kapoor", "Bansal", "Agarwal", "Pillai", "Rao", "Desai", "Kulkarni", "Menon"];
+
+const SALESPERSONS = ["Rajesh Kumar", "Sunita Rao", "Arvind Nair", "Pooja Bhatt", "Manish Tiwari",
+  "Kavitha Krishnan", "Deepa Iyer", "Sandeep Malhotra", "Anita Fernandes", "Vikas Yadav"];
+
+/* ---------- Deterministic PRNG (mulberry32) so the dataset is stable across reloads ---------- */
+function mulberry32(seed) {
+  return function () {
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const rand = mulberry32(20260910);
+const pick = (arr) => arr[Math.floor(rand() * arr.length)];
+const randInt = (min, max) => Math.floor(rand() * (max - min + 1)) + min;
+const randFloat = (min, max, dp = 2) => parseFloat((rand() * (max - min) + min).toFixed(dp));
+
+function randomDate(startYear, endYear) {
+  const start = new Date(startYear, 0, 1).getTime();
+  const end = new Date(endYear, 11, 31).getTime();
+  return new Date(start + rand() * (end - start));
+}
+
+/* Base price bands per sub-category, in Rupees, so figures feel realistic */
+const PRICE_BANDS = {
+  "Laptops": [28000, 95000],
+  "Mobile Accessories": [499, 4500],
+  "Office Electronics": [3200, 22000],
+  "Chairs": [3500, 18000],
+  "Tables": [4500, 32000],
+  "Storage": [6000, 26000],
+  "Stationery": [150, 1800],
+  "Paper": [220, 1200],
+  "Binders & Files": [180, 1500],
+  "Menswear": [800, 4500],
+  "Womenswear": [900, 5200],
+  "Footwear": [700, 4200],
+  "Kitchen": [1500, 9500],
+  "Cooling": [3200, 34000],
+  "Cleaning": [2200, 12000]
+};
+
+function generateSalesData(count = 850) {
+  const records = [];
+  const customerPool = [];
+  const customerCount = Math.max(120, Math.round(count * 0.28));
+  for (let i = 0; i < customerCount; i++) {
+    customerPool.push({
+      id: `CUST-${1000 + i}`,
+      name: `${pick(FIRST_NAMES)} ${pick(LAST_NAMES)}`,
+      segment: pick(SEGMENTS)
+    });
+  }
+
+  const categoryNames = Object.keys(CATEGORIES);
+  let orderCounter = 10001;
+
+  for (let i = 0; i < count; i++) {
+    const regionName = pick(Object.keys(REGIONS));
+    const region = REGIONS[regionName];
+    const stateName = pick(Object.keys(region.states));
+    const city = pick(region.states[stateName]);
+
+    const categoryName = pick(categoryNames);
+    const subNames = Object.keys(CATEGORIES[categoryName].subs);
+    const subCategory = pick(subNames);
+    const productName = pick(CATEGORIES[categoryName].subs[subCategory]);
+
+    const [lo, hi] = PRICE_BANDS[subCategory];
+    const unitPrice = randFloat(lo, hi, 0);
+    const quantity = randInt(1, 12);
+    const discountPct = pick([0, 0, 0, 5, 10, 10, 15, 20]);
+    const grossSales = unitPrice * quantity;
+    const discountAmt = grossSales * (discountPct / 100);
+    const sales = Math.round(grossSales - discountAmt);
+    const costRatio = randFloat(0.55, 0.82, 2); // cost as a fraction of net sales
+    const cost = Math.round(sales * costRatio);
+    const profit = sales - cost;
+
+    const customer = pick(customerPool);
+    const orderDate = randomDate(2023, 2026);
+    // clamp future dates beyond "today" (Sep 2026) back into range
+    const today = new Date(2026, 8, 10);
+    if (orderDate > today) orderDate.setFullYear(orderDate.getFullYear() - 1);
+
+    records.push({
+      orderId: `ORD-${orderCounter++}`,
+      orderDate: orderDate.toISOString().slice(0, 10),
+      customerId: customer.id,
+      customerName: customer.name,
+      customerSegment: customer.segment,
+      productId: `PRD-${2000 + i % 400}`,
+      productName,
+      category: categoryName,
+      subCategory,
+      region: regionName,
+      state: stateName,
+      city,
+      salesperson: pick(SALESPERSONS),
+      salesChannel: pick(CHANNELS),
+      quantity,
+      sales,
+      discount: discountPct,
+      cost,
+      profit,
+      profitMargin: sales > 0 ? +( (profit / sales) * 100 ).toFixed(1) : 0
+    });
+  }
+
+  records.sort((a, b) => new Date(a.orderDate) - new Date(b.orderDate));
+  return records;
+}
+
+const SALES_DATA = generateSalesData(850);
+
+</script>
+<script>
+/* ============================================================
+   script.js — Sales Analytics Dashboard behaviour
+   Sections: formatting helpers, state, filter wiring, KPI calc,
+   charts (Chart.js), regional performance, top performers,
+   insights engine, data table (search/sort/paginate/export),
+   theme + sidebar + responsive interactivity.
+   ============================================================ */
+
+(function () {
+  "use strict";
+
+  /* ---------------------------------------------------------
+     1. FORMATTING HELPERS (Indian numbering system)
+     --------------------------------------------------------- */
+  const inrFormatter = new Intl.NumberFormat("en-IN");
+
+  function formatINR(value) {
+    return "₹" + inrFormatter.format(Math.round(value));
+  }
+
+  // Compact Indian formatting: ₹1.25 Cr / ₹8.75 Lakh / ₹12,45,000
+  function formatINRCompact(value) {
+    const abs = Math.abs(value);
+    if (abs >= 1e7) return "₹" + (value / 1e7).toFixed(2) + " Cr";
+    if (abs >= 1e5) return "₹" + (value / 1e5).toFixed(2) + " Lakh";
+    return formatINR(value);
+  }
+
+  function formatPct(value, dp = 1) {
+    const sign = value > 0 ? "+" : "";
+    return sign + value.toFixed(dp) + "%";
+  }
+
+  function formatDate(d) {
+    return new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+  }
+
+  const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+  /* ---------------------------------------------------------
+     2. STATE
+     --------------------------------------------------------- */
+  const state = {
+    all: SALES_DATA,               // full dataset (never mutated)
+    filtered: SALES_DATA.slice(),  // after Apply Filters
+    filters: {
+      daterange: "all", year: "all", month: "all", region: "all",
+      state: "all", city: "all", category: "all", product: "all",
+      segment: "all", channel: "all"
+    },
+    trendGranularity: "monthly",
+    regionLevel: "region",
+    activeRegionCard: null,
+    table: { search: "", sortKey: "orderDate", sortDir: "desc", page: 1, pageSize: 10 },
+    charts: {}
+  };
+
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+  /* ---------------------------------------------------------
+     3. FILTER OPTIONS + WIRING
+     --------------------------------------------------------- */
+  function uniqueSorted(arr) { return Array.from(new Set(arr)).sort(); }
+
+  function populateSelect(id, values, formatter) {
+    const el = document.getElementById(id);
+    const current = el.value;
+    // keep the "all" option, rebuild the rest
+    el.innerHTML = el.querySelector('option[value="all"]').outerHTML;
+    values.forEach((v) => {
+      const opt = document.createElement("option");
+      opt.value = v;
+      opt.textContent = formatter ? formatter(v) : v;
+      el.appendChild(opt);
+    });
+    if (values.includes(current)) el.value = current;
+  }
+
+  function initFilterOptions() {
+    const years = uniqueSorted(state.all.map((r) => new Date(r.orderDate).getFullYear()));
+    populateSelect("f-year", years);
+    populateSelect("f-month", [...Array(12).keys()].map((i) => i + 1), (m) => MONTH_NAMES[m - 1]);
+    populateSelect("f-region", uniqueSorted(state.all.map((r) => r.region)));
+    populateSelect("f-category", uniqueSorted(state.all.map((r) => r.category)));
+    populateSelect("f-segment", uniqueSorted(state.all.map((r) => r.customerSegment)));
+    populateSelect("f-channel", uniqueSorted(state.all.map((r) => r.salesChannel)));
+    refreshDependentFilters();
+  }
+
+  // State/City/Product depend on currently selected Region/State/Category
+  function refreshDependentFilters() {
+    const region = $("#f-region").value;
+    const stateSel = $("#f-state").value;
+    const category = $("#f-category").value;
+
+    const statesPool = state.all.filter((r) => region === "all" || r.region === region);
+    populateSelect("f-state", uniqueSorted(statesPool.map((r) => r.state)));
+    if (region !== "all") $("#f-state").value = statesPool.some(r=>r.state===stateSel) ? stateSel : "all";
+
+    const citiesPool = statesPool.filter((r) => $("#f-state").value === "all" || r.state === $("#f-state").value);
+    populateSelect("f-city", uniqueSorted(citiesPool.map((r) => r.city)));
+
+    const productsPool = state.all.filter((r) => category === "all" || r.category === category);
+    populateSelect("f-product", uniqueSorted(productsPool.map((r) => r.productName)));
+  }
+
+  function applyFilters() {
+    const f = state.filters;
+    f.daterange = $("#f-daterange").value;
+    f.year = $("#f-year").value;
+    f.month = $("#f-month").value;
+    f.region = $("#f-region").value;
+    f.state = $("#f-state").value;
+    f.city = $("#f-city").value;
+    f.category = $("#f-category").value;
+    f.product = $("#f-product").value;
+    f.segment = $("#f-segment").value;
+    f.channel = $("#f-channel").value;
+
+    const today = new Date(2026, 8, 10);
+    let cutoff = null;
+    if (f.daterange === "last90") cutoff = new Date(today.getTime() - 90 * 86400000);
+    if (f.daterange === "last180") cutoff = new Date(today.getTime() - 180 * 86400000);
+    if (f.daterange === "last365") cutoff = new Date(today.getTime() - 365 * 86400000);
+
+    state.filtered = state.all.filter((r) => {
+      const d = new Date(r.orderDate);
+      if (cutoff && d < cutoff) return false;
+      if (f.year !== "all" && d.getFullYear() !== +f.year) return false;
+      if (f.month !== "all" && d.getMonth() + 1 !== +f.month) return false;
+      if (f.region !== "all" && r.region !== f.region) return false;
+      if (f.state !== "all" && r.state !== f.state) return false;
+      if (f.city !== "all" && r.city !== f.city) return false;
+      if (f.category !== "all" && r.category !== f.category) return false;
+      if (f.product !== "all" && r.productName !== f.product) return false;
+      if (f.segment !== "all" && r.customerSegment !== f.segment) return false;
+      if (f.channel !== "all" && r.salesChannel !== f.channel) return false;
+      return true;
+    });
+
+    state.table.page = 1;
+    state.activeRegionCard = null;
+    renderAll();
+  }
+
+  function resetFilters() {
+    $$("#filtersBody select").forEach((sel) => (sel.value = "all"));
+    refreshDependentFilters();
+    applyFilters();
+  }
+
+  /* ---------------------------------------------------------
+     4. KPI CARDS
+     --------------------------------------------------------- */
+  const KPI_DEFS = [
+    { key: "totalSales", label: "Total Sales", icon: "fa-solid fa-indian-rupee-sign", accent: "var(--navy)" },
+    { key: "totalProfit", label: "Total Profit", icon: "fa-solid fa-sack-dollar", accent: "var(--positive)" },
+    { key: "totalOrders", label: "Total Orders", icon: "fa-solid fa-receipt", accent: "var(--info)" },
+    { key: "totalCustomers", label: "Total Customers", icon: "fa-solid fa-users", accent: "var(--chart-5)" },
+    { key: "avgOrderValue", label: "Average Order Value", icon: "fa-solid fa-cart-shopping", accent: "var(--gold)" },
+    { key: "profitMargin", label: "Profit Margin", icon: "fa-solid fa-percent", accent: "var(--chart-3)" }
+  ];
+
+  function computeKpis(rows) {
+    const totalSales = rows.reduce((s, r) => s + r.sales, 0);
+    const totalProfit = rows.reduce((s, r) => s + r.profit, 0);
+    const totalOrders = rows.length;
+    const totalCustomers = new Set(rows.map((r) => r.customerId)).size;
+    const avgOrderValue = totalOrders ? totalSales / totalOrders : 0;
+    const profitMargin = totalSales ? (totalProfit / totalSales) * 100 : 0;
+    return { totalSales, totalProfit, totalOrders, totalCustomers, avgOrderValue, profitMargin };
+  }
+
+  // Period-over-period comparison: split filtered rows' date span into two halves
+  function computePreviousPeriodDelta(rows) {
+    if (rows.length < 2) return {};
+    const dates = rows.map((r) => new Date(r.orderDate).getTime());
+    const min = Math.min(...dates), max = Math.max(...dates);
+    const mid = (min + max) / 2;
+    const first = rows.filter((r) => new Date(r.orderDate).getTime() <= mid);
+    const second = rows.filter((r) => new Date(r.orderDate).getTime() > mid);
+    const a = computeKpis(first), b = computeKpis(second);
+    const pctChange = (curr, prev) => (prev ? ((curr - prev) / prev) * 100 : 0);
+    return {
+      totalSales: pctChange(b.totalSales, a.totalSales),
+      totalProfit: pctChange(b.totalProfit, a.totalProfit),
+      totalOrders: pctChange(b.totalOrders, a.totalOrders),
+      totalCustomers: pctChange(b.totalCustomers, a.totalCustomers),
+      avgOrderValue: pctChange(b.avgOrderValue, a.avgOrderValue),
+      profitMargin: b.profitMargin - a.profitMargin
+    };
+  }
+
+  function renderKpis() {
+    const kpis = computeKpis(state.filtered);
+    const deltas = computePreviousPeriodDelta(state.filtered);
+    const grid = $("#kpiGrid");
+    grid.innerHTML = "";
+
+    KPI_DEFS.forEach((def) => {
+      const value = kpis[def.key];
+      const delta = deltas[def.key] || 0;
+      const isPct = def.key === "profitMargin";
+      const displayValue = def.key === "totalOrders" || def.key === "totalCustomers"
+        ? inrFormatter.format(value)
+        : isPct ? value.toFixed(1) + "%" : formatINRCompact(value);
+
+      const card = document.createElement("div");
+      card.className = "kpi-card";
+      card.style.setProperty("--kpi-accent", def.accent);
+      card.innerHTML = `
+        <div class="kpi-card__top">
+          <span class="kpi-card__label">${def.label}</span>
+          <span class="kpi-card__icon"><i class="${def.icon}"></i></span>
+        </div>
+        <div class="kpi-card__value">${displayValue}</div>
+        <div class="kpi-card__change ${delta >= 0 ? "positive" : "negative"}">
+          <i class="fa-solid ${delta >= 0 ? "fa-arrow-trend-up" : "fa-arrow-trend-down"}"></i>
+          ${formatPct(delta)} <span class="kpi-card__sub">vs previous period</span>
+        </div>`;
+      grid.appendChild(card);
+    });
+  }
+
+  /* ---------------------------------------------------------
+     5. CHART.JS SETUP
+     --------------------------------------------------------- */
+  function chartColors() {
+    const styles = getComputedStyle(document.documentElement);
+    return {
+      text: styles.getPropertyValue("--text-muted").trim(),
+      grid: styles.getPropertyValue("--border").trim(),
+      c1: styles.getPropertyValue("--chart-1").trim(),
+      c2: styles.getPropertyValue("--chart-2").trim(),
+      c3: styles.getPropertyValue("--chart-3").trim(),
+      c4: styles.getPropertyValue("--chart-4").trim(),
+      c5: styles.getPropertyValue("--chart-5").trim(),
+      c6: styles.getPropertyValue("--chart-6").trim(),
+      positive: styles.getPropertyValue("--positive").trim(),
+      negative: styles.getPropertyValue("--negative").trim(),
+      surface: styles.getPropertyValue("--surface").trim()
+    };
+  }
+
+  function baseScaleOptions(colors) {
+    return {
+      x: { grid: { display: false }, ticks: { color: colors.text, font: { size: 11 } } },
+      y: { grid: { color: colors.grid }, ticks: { color: colors.text, font: { size: 11 } }, beginAtZero: true }
+    };
+  }
+
+  function destroyChart(key) {
+    if (state.charts[key]) { state.charts[key].destroy(); delete state.charts[key]; }
+  }
+
+  function groupByPeriod(rows, granularity) {
+    const keyFor = (d) => {
+      const dt = new Date(d);
+      if (granularity === "daily") return dt.toISOString().slice(0, 10);
+      if (granularity === "quarterly") return `${dt.getFullYear()} Q${Math.floor(dt.getMonth() / 3) + 1}`;
+      if (granularity === "yearly") return `${dt.getFullYear()}`;
+      return `${MONTH_NAMES[dt.getMonth()].slice(0, 3)} ${dt.getFullYear()}`;
+    };
+    const map = new Map();
+    rows.forEach((r) => {
+      const k = keyFor(r.orderDate);
+      if (!map.has(k)) map.set(k, { sales: 0, profit: 0, order: new Date(r.orderDate) });
+      const bucket = map.get(k);
+      bucket.sales += r.sales;
+      bucket.profit += r.profit;
+    });
+    return Array.from(map.entries())
+      .sort((a, b) => a[1].order - b[1].order)
+      .map(([label, v]) => ({ label, sales: v.sales, profit: v.profit }));
+  }
+
+  function renderTrendChart() {
+    const colors = chartColors();
+    const data = groupByPeriod(state.filtered, state.trendGranularity);
+    destroyChart("trend");
+    const ctx = $("#trendChart").getContext("2d");
+    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, colors.c1 + "33");
+    gradient.addColorStop(1, colors.c1 + "00");
+
+    state.charts.trend = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: data.map((d) => d.label),
+        datasets: [
+          { label: "Sales", data: data.map((d) => d.sales), borderColor: colors.c1, backgroundColor: gradient, fill: true, tension: 0.35, pointRadius: 0, pointHoverRadius: 5, borderWidth: 2.5 },
+          { label: "Profit", data: data.map((d) => d.profit), borderColor: colors.c2, backgroundColor: "transparent", fill: false, tension: 0.35, pointRadius: 0, pointHoverRadius: 5, borderWidth: 2, borderDash: [5, 3] }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { position: "top", align: "end", labels: { color: colors.text, boxWidth: 10, usePointStyle: true, font: { size: 11.5 } } },
+          tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatINRCompact(ctx.parsed.y)}` } }
+        },
+        scales: { ...baseScaleOptions(colors), y: { ...baseScaleOptions(colors).y, ticks: { ...baseScaleOptions(colors).y.ticks, callback: (v) => formatINRCompact(v) } } }
+      }
+    });
+  }
+
+  function renderSalesProfitChart() {
+    const colors = chartColors();
+    const data = groupByPeriod(state.filtered, "monthly").slice(-8);
+    destroyChart("salesProfit");
+    state.charts.salesProfit = new Chart($("#salesProfitChart").getContext("2d"), {
+      type: "bar",
+      data: {
+        labels: data.map((d) => d.label),
+        datasets: [
+          { label: "Sales", data: data.map((d) => d.sales), backgroundColor: colors.c1, borderRadius: 4, maxBarThickness: 22 },
+          { label: "Profit", data: data.map((d) => d.profit), backgroundColor: colors.c2, borderRadius: 4, maxBarThickness: 22 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "top", align: "end", labels: { color: colors.text, boxWidth: 10, usePointStyle: true, font: { size: 11.5 } } },
+          tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatINRCompact(ctx.parsed.y)}` } }
+        },
+        scales: { ...baseScaleOptions(colors), y: { ...baseScaleOptions(colors).y, ticks: { ...baseScaleOptions(colors).y.ticks, callback: (v) => formatINRCompact(v) } } }
+      }
+    });
+  }
+
+  function renderCategoryChart() {
+    const colors = chartColors();
+    const map = new Map();
+    state.filtered.forEach((r) => {
+      if (!map.has(r.category)) map.set(r.category, { sales: 0, profit: 0 });
+      map.get(r.category).sales += r.sales;
+      map.get(r.category).profit += r.profit;
+    });
+    const entries = Array.from(map.entries()).sort((a, b) => b[1].sales - a[1].sales);
+    destroyChart("category");
+    state.charts.category = new Chart($("#categoryChart").getContext("2d"), {
+      type: "bar",
+      data: {
+        labels: entries.map((e) => e[0]),
+        datasets: [
+          { label: "Sales", data: entries.map((e) => e[1].sales), backgroundColor: colors.c1, borderRadius: 4 },
+          { label: "Profit", data: entries.map((e) => e[1].profit), backgroundColor: colors.c3, borderRadius: 4 }
+        ]
+      },
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "top", align: "end", labels: { color: colors.text, boxWidth: 10, usePointStyle: true, font: { size: 11.5 } } },
+          tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatINRCompact(ctx.parsed.x)}` } }
+        },
+        scales: { x: { grid: { color: colors.grid }, ticks: { color: colors.text, callback: (v) => formatINRCompact(v), font: { size: 10.5 } } }, y: { grid: { display: false }, ticks: { color: colors.text, font: { size: 11.5 } } } }
+      }
+    });
+  }
+
+  function renderRegionChart() {
+    const colors = chartColors();
+    const level = state.regionLevel;
+    const map = new Map();
+    state.filtered.forEach((r) => {
+      const k = level === "region" ? r.region : r.state;
+      map.set(k, (map.get(k) || 0) + r.sales);
+    });
+    const entries = Array.from(map.entries()).sort((a, b) => b[1] - a[1]).slice(0, 10);
+    destroyChart("region");
+    state.charts.region = new Chart($("#regionChart").getContext("2d"), {
+      type: "bar",
+      data: { labels: entries.map((e) => e[0]), datasets: [{ label: "Sales", data: entries.map((e) => e[1]), backgroundColor: [colors.c1, colors.c2, colors.c3, colors.c4, colors.c5, colors.c6, colors.c1, colors.c2, colors.c3, colors.c4], borderRadius: 4, maxBarThickness: 34 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `Sales: ${formatINRCompact(ctx.parsed.y)}` } } },
+        scales: { ...baseScaleOptions(colors), y: { ...baseScaleOptions(colors).y, ticks: { ...baseScaleOptions(colors).y.ticks, callback: (v) => formatINRCompact(v) } } }
+      }
+    });
+  }
+
+  function renderSegmentChart() {
+    const colors = chartColors();
+    const map = new Map();
+    state.filtered.forEach((r) => map.set(r.customerSegment, (map.get(r.customerSegment) || 0) + r.sales));
+    const labels = ["Consumer", "Corporate", "Home Office"].filter((l) => map.has(l));
+    destroyChart("segment");
+    state.charts.segment = new Chart($("#segmentChart").getContext("2d"), {
+      type: "doughnut",
+      data: { labels, datasets: [{ data: labels.map((l) => map.get(l)), backgroundColor: [colors.c1, colors.c2, colors.c3], borderWidth: 0, hoverOffset: 6 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: "68%",
+        plugins: {
+          legend: { position: "bottom", labels: { color: colors.text, boxWidth: 10, usePointStyle: true, font: { size: 11.5 }, padding: 14 } },
+          tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${formatINRCompact(ctx.parsed)}` } }
+        }
+      }
+    });
+  }
+
+  function renderTopProductsChart() {
+    const colors = chartColors();
+    const map = new Map();
+    state.filtered.forEach((r) => map.set(r.productName, (map.get(r.productName) || 0) + r.sales));
+    const entries = Array.from(map.entries()).sort((a, b) => b[1] - a[1]).slice(0, 10).reverse();
+    destroyChart("topProducts");
+    state.charts.topProducts = new Chart($("#topProductsChart").getContext("2d"), {
+      type: "bar",
+      data: { labels: entries.map((e) => e[0]), datasets: [{ label: "Sales", data: entries.map((e) => e[1]), backgroundColor: colors.c2, borderRadius: 4 }] },
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `Sales: ${formatINRCompact(ctx.parsed.x)}` } } },
+        scales: { x: { grid: { color: colors.grid }, ticks: { color: colors.text, callback: (v) => formatINRCompact(v), font: { size: 10.5 } } }, y: { grid: { display: false }, ticks: { color: colors.text, font: { size: 10.5 } } } }
+      }
+    });
+  }
+
+  function renderAllCharts() {
+    renderTrendChart();
+    renderSalesProfitChart();
+    renderCategoryChart();
+    renderRegionChart();
+    renderSegmentChart();
+    renderTopProductsChart();
+  }
+
+  /* ---------------------------------------------------------
+     6. REGIONAL PERFORMANCE (clickable cards)
+     --------------------------------------------------------- */
+  function renderRegionGrid() {
+    const map = new Map();
+    state.filtered.forEach((r) => {
+      if (!map.has(r.region)) map.set(r.region, { sales: 0, profit: 0, orders: 0 });
+      const b = map.get(r.region);
+      b.sales += r.sales; b.profit += r.profit; b.orders += 1;
+    });
+    const grid = $("#regionGrid");
+    grid.innerHTML = "";
+    Array.from(map.entries()).sort((a, b) => b[1].sales - a[1].sales).forEach(([region, v]) => {
+      const card = document.createElement("div");
+      card.className = "region-card" + (state.activeRegionCard === region ? " is-active" : "");
+      card.innerHTML = `
+        <div class="region-card__name">${region}</div>
+        <div class="region-card__sales">${formatINRCompact(v.sales)}</div>
+        <div class="region-card__meta">${v.orders} orders · ${formatINRCompact(v.profit)} profit</div>`;
+      card.addEventListener("click", () => {
+        state.activeRegionCard = state.activeRegionCard === region ? null : region;
+        renderRegionGrid();
+        renderRegionDetail();
+      });
+      grid.appendChild(card);
+    });
+    renderRegionDetail();
+  }
+
+  function renderRegionDetail() {
+    const detail = $("#regionDetail");
+    if (!state.activeRegionCard) { detail.classList.remove("is-visible"); detail.innerHTML = ""; return; }
+    const rows = state.filtered.filter((r) => r.region === state.activeRegionCard);
+    const sales = rows.reduce((s, r) => s + r.sales, 0);
+    const profit = rows.reduce((s, r) => s + r.profit, 0);
+    const customers = new Set(rows.map((r) => r.customerId)).size;
+    const topState = Array.from(rows.reduce((m, r) => m.set(r.state, (m.get(r.state) || 0) + r.sales), new Map()).entries()).sort((a, b) => b[1] - a[1])[0];
+
+    detail.classList.add("is-visible");
+    detail.innerHTML = `
+      <div><div class="stat-label">Region</div><div class="stat-value">${state.activeRegionCard}</div></div>
+      <div><div class="stat-label">Total Sales</div><div class="stat-value">${formatINRCompact(sales)}</div></div>
+      <div><div class="stat-label">Total Profit</div><div class="stat-value">${formatINRCompact(profit)}</div></div>
+      <div><div class="stat-label">Orders</div><div class="stat-value">${rows.length}</div></div>
+      <div><div class="stat-label">Customers</div><div class="stat-value">${customers}</div></div>
+      <div><div class="stat-label">Leading State</div><div class="stat-value">${topState ? topState[0] : "—"}</div></div>`;
+  }
+
+  /* ---------------------------------------------------------
+     7. TOP PERFORMERS
+     --------------------------------------------------------- */
+  function topN(rows, keyFn, n = 5) {
+    const map = new Map();
+    rows.forEach((r) => {
+      const k = keyFn(r);
+      if (!map.has(k)) map.set(k, { sales: 0, profit: 0 });
+      map.get(k).sales += r.sales;
+      map.get(k).profit += r.profit;
+    });
+    return Array.from(map.entries()).sort((a, b) => b[1].sales - a[1].sales).slice(0, n);
+  }
+
+  function renderRankList(elId, entries, metaLabel) {
+    const el = document.getElementById(elId);
+    el.innerHTML = "";
+    if (!entries.length) { el.innerHTML = `<p class="panel__hint">No data for current filters.</p>`; return; }
+    entries.forEach(([name, v], i) => {
+      const growth = randGrowthFor(name); // deterministic pseudo-growth for display
+      const item = document.createElement("div");
+      item.className = "rank-item";
+      item.innerHTML = `
+        <span class="rank-item__pos">${i + 1}</span>
+        <div class="rank-item__body">
+          <div class="rank-item__name">${name}</div>
+          <div class="rank-item__meta">${metaLabel}: ${formatINRCompact(v.profit)} profit</div>
+        </div>
+        <div class="rank-item__value">
+          <div class="rank-item__sales">${formatINRCompact(v.sales)}</div>
+          <div class="rank-item__growth ${growth >= 0 ? "positive" : "negative"}">${formatPct(growth)}</div>
+        </div>`;
+      el.appendChild(item);
+    });
+  }
+
+  // stable pseudo-growth number derived from string hash, purely for display polish
+  function randGrowthFor(str) {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
+    return ((h % 400) / 10) - 12; // range approx -12% .. +28%
+  }
+
+  function renderTopPerformers() {
+    renderRankList("topProductsRankList", topN(state.filtered, (r) => r.productName), "Margin");
+    renderRankList("topCustomersRankList", topN(state.filtered, (r) => r.customerName), "Profit");
+    renderRankList("topRegionsRankList", topN(state.filtered, (r) => r.region), "Profit");
+
+    const spMap = new Map();
+    state.filtered.forEach((r) => {
+      if (!spMap.has(r.salesperson)) spMap.set(r.salesperson, { sales: 0, profit: 0 });
+      spMap.get(r.salesperson).sales += r.sales;
+      spMap.get(r.salesperson).profit += r.profit;
+    });
+    const topSp = Array.from(spMap.entries()).sort((a, b) => b[1].sales - a[1].sales).slice(0, 5);
+    renderRankList("topSalespersonRankList", topSp, "Profit");
+  }
+
+  /* ---------------------------------------------------------
+     8. INSIGHTS ENGINE (dynamic, generated from filtered data)
+     --------------------------------------------------------- */
+  function renderInsights() {
+    const rows = state.filtered;
+    const grid = $("#insightsGrid");
+    grid.innerHTML = "";
+    if (!rows.length) { grid.innerHTML = `<p class="panel__hint">No records match the current filters — adjust filters to see insights.</p>`; return; }
+
+    const totalSales = rows.reduce((s, r) => s + r.sales, 0);
+    const totalProfit = rows.reduce((s, r) => s + r.profit, 0);
+
+    const byCategory = topN(rows, (r) => r.category, 1)[0];
+    const byRegionAll = Array.from(rows.reduce((m, r) => m.set(r.region, (m.get(r.region) || 0) + r.sales), new Map()).entries()).sort((a, b) => b[1] - a[1]);
+    const byProduct = topN(rows, (r) => r.productName, 1)[0];
+    const byCustomer = topN(rows, (r) => r.customerName, 1)[0];
+
+    const byMonth = groupByPeriod(rows, "monthly");
+    const bestMonth = byMonth.slice().sort((a, b) => b.sales - a.sales)[0];
+    const worstMonth = byMonth.slice().sort((a, b) => a.sales - b.sales)[0];
+
+    const deltas = computePreviousPeriodDelta(rows);
+    const margin = totalSales ? (totalProfit / totalSales) * 100 : 0;
+
+    // Category needing attention: lowest margin among categories with meaningful volume
+    const catStats = new Map();
+    rows.forEach((r) => {
+      if (!catStats.has(r.category)) catStats.set(r.category, { sales: 0, profit: 0 });
+      catStats.get(r.category).sales += r.sales;
+      catStats.get(r.category).profit += r.profit;
+    });
+    const weakest = Array.from(catStats.entries()).map(([k, v]) => [k, v.sales ? (v.profit / v.sales) * 100 : 0]).sort((a, b) => a[1] - b[1])[0];
+
+    const insights = [];
+    if (byCategory) insights.push({ icon: "fa-solid fa-crown", html: `<strong>${byCategory[0]}</strong> generated the highest revenue, contributing <strong>${((byCategory[1].sales / totalSales) * 100).toFixed(1)}%</strong> of total sales.` });
+    if (byRegionAll[0]) insights.push({ icon: "fa-solid fa-map-pin", html: `The <strong>${byRegionAll[0][0]}</strong> region recorded the strongest sales at <strong>${formatINRCompact(byRegionAll[0][1])}</strong>, leading all regions.` });
+    if (byProduct) insights.push({ icon: "fa-solid fa-star", html: `<strong>${byProduct[0]}</strong> is the most profitable product, contributing <strong>${formatINRCompact(byProduct[1].profit)}</strong> in profit.` });
+    if (byCustomer) insights.push({ icon: "fa-solid fa-user-tie", html: `<strong>${byCustomer[0]}</strong> is the highest-value customer with <strong>${formatINRCompact(byCustomer[1].sales)}</strong> in purchases.` });
+    if (bestMonth) insights.push({ icon: "fa-solid fa-arrow-trend-up", html: `<strong>${bestMonth.label}</strong> was the strongest month, recording <strong>${formatINRCompact(bestMonth.sales)}</strong> in sales.` });
+    if (worstMonth) insights.push({ icon: "fa-solid fa-arrow-trend-down", html: `<strong>${worstMonth.label}</strong> saw the lowest sales at <strong>${formatINRCompact(worstMonth.sales)}</strong> — worth reviewing for causes.` });
+    insights.push({ icon: "fa-solid fa-percent", html: `Overall profit margin stands at <strong>${margin.toFixed(1)}%</strong>, ${deltas.profitMargin >= 0 ? "an improvement" : "a decline"} of <strong>${formatPct(Math.abs(deltas.profitMargin))}</strong> points vs the earlier period.` });
+    if (weakest) insights.push({ icon: "fa-solid fa-triangle-exclamation", html: `<strong>${weakest[0]}</strong> has the thinnest margin at <strong>${weakest[1].toFixed(1)}%</strong> — a category that may need pricing or cost attention.` });
+
+    insights.forEach((ins) => {
+      const card = document.createElement("div");
+      card.className = "insight-card";
+      card.innerHTML = `<span class="insight-card__icon"><i class="${ins.icon}"></i></span><p>${ins.html}</p>`;
+      grid.appendChild(card);
+    });
+  }
+
+  /* ---------------------------------------------------------
+     9. DATA TABLE (search, sort, paginate, export)
+     --------------------------------------------------------- */
+  function getTableRows() {
+    let rows = state.filtered;
+    const q = state.table.search.trim().toLowerCase();
+    if (q) {
+      rows = rows.filter((r) =>
+        r.orderId.toLowerCase().includes(q) ||
+        r.customerName.toLowerCase().includes(q) ||
+        r.productName.toLowerCase().includes(q) ||
+        r.category.toLowerCase().includes(q) ||
+        r.region.toLowerCase().includes(q) ||
+        r.state.toLowerCase().includes(q)
+      );
+    }
+    const { sortKey, sortDir } = state.table;
+    rows = rows.slice().sort((a, b) => {
+      let va = a[sortKey], vb = b[sortKey];
+      if (sortKey === "orderDate") { va = new Date(va); vb = new Date(vb); }
+      if (typeof va === "string") { va = va.toLowerCase(); vb = vb.toLowerCase(); }
+      if (va < vb) return sortDir === "asc" ? -1 : 1;
+      if (va > vb) return sortDir === "asc" ? 1 : -1;
+      return 0;
+    });
+    return rows;
+  }
+
+  function renderTable() {
+    const rows = getTableRows();
+    const { page, pageSize } = state.table;
+    const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+    state.table.page = Math.min(page, totalPages);
+    const start = (state.table.page - 1) * pageSize;
+    const pageRows = rows.slice(start, start + pageSize);
+
+    const tbody = $("#tableBody");
+    tbody.innerHTML = "";
+    if (!pageRows.length) {
+      tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding:26px; color:var(--text-faint);">No matching records.</td></tr>`;
+    }
+    pageRows.forEach((r) => {
+      const marginClass = r.profitMargin >= 25 ? "is-high" : r.profitMargin < 10 ? "is-low" : "";
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${r.orderId}</td>
+        <td>${formatDate(r.orderDate)}</td>
+        <td>${r.customerName}</td>
+        <td>${r.productName}</td>
+        <td><span class="pill">${r.category}</span></td>
+        <td>${r.region}</td>
+        <td>${r.state}</td>
+        <td>${formatINR(r.sales)}</td>
+        <td>${r.quantity}</td>
+        <td class="cell-profit ${marginClass}">${formatINR(r.profit)}</td>
+        <td class="cell-profit ${marginClass}">${r.profitMargin}%</td>`;
+      tbody.appendChild(tr);
+    });
+
+    $("#tableSummary").textContent = rows.length
+      ? `Showing ${start + 1}–${Math.min(start + pageSize, rows.length)} of ${rows.length} records`
+      : "No records found";
+
+    renderPagination(totalPages);
+    $$("#dataTable th").forEach((th) => {
+      th.classList.toggle("is-sorted", th.dataset.key === state.table.sortKey);
+      const icon = th.querySelector("i");
+      if (th.dataset.key === state.table.sortKey) {
+        icon.className = `fa-solid ${state.table.sortDir === "asc" ? "fa-sort-up" : "fa-sort-down"}`;
+      } else {
+        icon.className = "fa-solid fa-sort";
+      }
+    });
+  }
+
+  function renderPagination(totalPages) {
+    const el = $("#pagination");
+    el.innerHTML = "";
+    const cur = state.table.page;
+
+    const mkBtn = (label, page, opts = {}) => {
+      const b = document.createElement("button");
+      b.textContent = label;
+      if (opts.active) b.classList.add("is-active");
+      if (opts.disabled) b.disabled = true;
+      b.addEventListener("click", () => { state.table.page = page; renderTable(); });
+      return b;
+    };
+
+    el.appendChild(mkBtn("‹", Math.max(1, cur - 1), { disabled: cur === 1 }));
+    const windowSize = 5;
+    let startP = Math.max(1, cur - Math.floor(windowSize / 2));
+    let endP = Math.min(totalPages, startP + windowSize - 1);
+    startP = Math.max(1, endP - windowSize + 1);
+    for (let p = startP; p <= endP; p++) el.appendChild(mkBtn(String(p), p, { active: p === cur }));
+    el.appendChild(mkBtn("›", Math.min(totalPages, cur + 1), { disabled: cur === totalPages }));
+  }
+
+  function exportCsv() {
+    const rows = getTableRows();
+    const headers = ["Order ID","Order Date","Customer","Product","Category","Region","State","Sales","Quantity","Profit","Profit Margin (%)"];
+    const lines = [headers.join(",")];
+    rows.forEach((r) => {
+      lines.push([r.orderId, r.orderDate, `"${r.customerName}"`, `"${r.productName}"`, r.category, r.region, r.state, r.sales, r.quantity, r.profit, r.profitMargin].join(","));
+    });
+    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `sales-data-filtered-${Date.now()}.csv`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  /* ---------------------------------------------------------
+     10. RENDER ORCHESTRATION
+     --------------------------------------------------------- */
+  function renderAll() {
+    renderKpis();
+    renderAllCharts();
+    renderRegionGrid();
+    renderTopPerformers();
+    renderInsights();
+    renderTable();
+  }
+
+  /* ---------------------------------------------------------
+     11. THEME + SIDEBAR + MISC INTERACTIVITY
+     --------------------------------------------------------- */
+  function initTheme() {
+    let saved = null;
+    try { saved = localStorage.getItem("sad_theme"); } catch (e) { /* storage unavailable */ }
+    const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const useDark = saved ? saved === "dark" : prefersDark;
+    document.documentElement.classList.toggle("dark", useDark);
+    updateThemeIcon();
+  }
+
+  function updateThemeIcon() {
+    const isDark = document.documentElement.classList.contains("dark");
+    $("#themeToggle").innerHTML = `<i class="fa-solid ${isDark ? "fa-sun" : "fa-moon"}"></i>`;
+  }
+
+  function toggleTheme() {
+    const isDark = document.documentElement.classList.toggle("dark");
+    try { localStorage.setItem("sad_theme", isDark ? "dark" : "light"); } catch (e) { /* ignore */ }
+    updateThemeIcon();
+    renderAllCharts(); // re-theme chart colors
+  }
+
+  function initSidebar() {
+    $("#sidebarCollapseBtn").addEventListener("click", () => {
+      $("#app").classList.toggle("is-sidebar-collapsed");
+    });
+    $("#sidebarToggleMobile").addEventListener("click", () => {
+      $("#app").classList.toggle("is-mobile-open");
+    });
+    $$(".nav-link").forEach((link) => {
+      link.addEventListener("click", () => {
+        $$(".nav-link").forEach((l) => l.classList.remove("is-active"));
+        link.classList.add("is-active");
+        $("#app").classList.remove("is-mobile-open");
+      });
+    });
+  }
+
+  function initFiltersUi() {
+    $("#filtersCollapseBtn").addEventListener("click", () => {
+      $("#filters").classList.toggle("is-collapsed");
+      const collapsed = $("#filters").classList.contains("is-collapsed");
+      $("#filtersCollapseBtn").innerHTML = collapsed
+        ? `<span>Show</span> <i class="fa-solid fa-chevron-down"></i>`
+        : `<span>Hide</span> <i class="fa-solid fa-chevron-up"></i>`;
+    });
+    ["f-region", "f-state", "f-category"].forEach((id) => {
+      document.getElementById(id).addEventListener("change", refreshDependentFilters);
+    });
+    $("#applyFiltersBtn").addEventListener("click", applyFilters);
+    $("#resetFiltersBtn").addEventListener("click", resetFilters);
+  }
+
+  function initTrendGranularity() {
+    $$("#trendGranularity button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        $$("#trendGranularity button").forEach((b) => b.classList.remove("is-active"));
+        btn.classList.add("is-active");
+        state.trendGranularity = btn.dataset.granularity;
+        renderTrendChart();
+      });
+    });
+    $$("#regionGranularity button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        $$("#regionGranularity button").forEach((b) => b.classList.remove("is-active"));
+        btn.classList.add("is-active");
+        state.regionLevel = btn.dataset.level;
+        renderRegionChart();
+      });
+    });
+  }
+
+  function initTableControls() {
+    let searchTimer = null;
+    $("#tableSearch").addEventListener("input", (e) => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        state.table.search = e.target.value;
+        state.table.page = 1;
+        renderTable();
+      }, 180);
+    });
+    $$("#dataTable th").forEach((th) => {
+      th.addEventListener("click", () => {
+        const key = th.dataset.key;
+        if (state.table.sortKey === key) {
+          state.table.sortDir = state.table.sortDir === "asc" ? "desc" : "asc";
+        } else {
+          state.table.sortKey = key;
+          state.table.sortDir = "asc";
+        }
+        renderTable();
+      });
+    });
+    $("#exportCsvBtn").addEventListener("click", exportCsv);
+    $("#printBtn").addEventListener("click", () => window.print());
+  }
+
+  function initRefreshButton() {
+    $("#refreshBtn").addEventListener("click", () => {
+      const btn = $("#refreshBtn");
+      const icon = btn.querySelector("i");
+      icon.classList.add("fa-spin");
+      // Simulate a data refresh by nudging a small random subset of sales/profit
+      // (kept deterministic-ish; purely a UI demonstration of "live" data)
+      state.all.forEach((r) => {
+        if (Math.random() < 0.04) {
+          const bump = 1 + (Math.random() * 0.1 - 0.05);
+          r.sales = Math.max(0, Math.round(r.sales * bump));
+          r.profit = Math.round(r.sales * (r.profitMargin / 100));
+        }
+      });
+      applyFilters();
+      setTimeout(() => icon.classList.remove("fa-spin"), 600);
+    });
+  }
+
+  function setCurrentDate() {
+    const el = $("#currentDate");
+    const today = new Date(2026, 8, 10);
+    el.textContent = today.toLocaleDateString("en-IN", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
+  }
+
+  /* ---------------------------------------------------------
+     12. INIT
+     --------------------------------------------------------- */
+  document.addEventListener("DOMContentLoaded", () => {
+    setCurrentDate();
+    initTheme();
+    initSidebar();
+    initFilterOptions();
+    initFiltersUi();
+    initTrendGranularity();
+    initTableControls();
+    initRefreshButton();
+    $("#themeToggle").addEventListener("click", toggleTheme);
+    renderAll();
+  });
+})();
+
+</script>
+</body>
+</html>
